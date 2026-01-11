@@ -8,6 +8,7 @@ public class ChurninsightApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ChurninsightApplication.class, args);
+
 	}
 
 }
