@@ -1,5 +1,6 @@
 package org.hackaton.oracle.churninsight.config;
 
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "org.hackaton.oracleone.churninsight.domain.ml.repository",
+        basePackages = "org.hackaton.oracle.churninsight.domain.ml.repository",
         entityManagerFactoryRef = "mlOperationsEntityManagerFactory",
         transactionManagerRef = "mlOperationsTransactionManager"
 )
@@ -31,11 +32,20 @@ public class JpaMlOperationsConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("org.hackaton.oracleone.churninsight.domain.ml.entity");
+        factory.setPackagesToScan("org.hackaton.oracle.churninsight.domain.ml.entity");
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
         factory.setPersistenceUnitName("mlOperationsPU");
 
         return factory;
     }
+
+    @Bean(name = "mlOperationsTransactionManager")
+    public PlatformTransactionManager mlOperationsTransactionManager(
+            @Qualifier("mlOperationsEntityManagerFactory")
+            EntityManagerFactory entityManagerFactory
+    ) {
+        return new JpaTransactionManager(entityManagerFactory);
+    }
+
 }

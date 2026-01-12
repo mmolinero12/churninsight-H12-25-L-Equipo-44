@@ -17,7 +17,7 @@ import java.util.Objects;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "org.hackaton.oracleone.churninsight.domain.usuario.repository",
+        basePackages = "org.hackaton.oracle.churninsight.domain.usuario.repository",
         entityManagerFactoryRef = "usuariosEntityManagerFactory",
         transactionManagerRef = "usuariosTransactionManager"
 )
@@ -32,7 +32,7 @@ public class JpaUsuariosConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("org.hackaton.oracleone.churninsight.domain.usuario.entity");
+        factory.setPackagesToScan("org.hackaton.oracle.churninsight.domain.usuario.entity");
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
         factory.setPersistenceUnitName("usuariosPU");

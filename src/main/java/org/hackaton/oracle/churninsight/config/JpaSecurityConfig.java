@@ -18,7 +18,7 @@ import java.util.Objects;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "org.hackaton.oracleone.churninsight.domain.auth.repository",
+        basePackages = "org.hackaton.oracle.churninsight.domain.auth.repository",
         entityManagerFactoryRef = "securityEntityManagerFactory",
         transactionManagerRef = "securityTransactionManager"
 )
@@ -34,7 +34,7 @@ public class JpaSecurityConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("org.hackaton.oracleone.churninsight.domain.auth.entity");
+        factory.setPackagesToScan("org.hackaton.oracle.churninsight.domain.auth.entity");
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
         factory.setPersistenceUnitName("securityPU");
