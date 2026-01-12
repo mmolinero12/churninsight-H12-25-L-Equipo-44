@@ -83,8 +83,14 @@
 
         <!-- Dependencias 03 -->
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
-	</dependencies>
+
+
+    </dependencies>
 
 	<build>
 		<plugins>

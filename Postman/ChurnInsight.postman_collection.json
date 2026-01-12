@@ -1,0 +1,411 @@
+{
+	"info": {
+		"_postman_id": "ea4a5a19-c7b4-4b83-95c0-b4ac656160ea",
+		"name": "ChurnInsight",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46224946"
+	},
+	"item": [
+		{
+			"name": "Python",
+			"item": [
+				{
+					"name": "Predicción Individual - NO Java",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"CreditScore\": 650,\r\n  \"Geography\": \"France\",\r\n  \"_Gender\": \"Male\",\r\n  \"Age\": 40,\r\n  \"Tenure\": 5,\r\n  \"Balance\": 60000,\r\n  \"NumOfProducts\": 2,\r\n  \"HasCrCard\": 1,\r\n  \"IsActiveMember\": 1,\r\n  \"EstimatedSalary\": 50000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/predict",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"predict"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Predicción Batch - NO Java",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Respaldo Mike/Programación/Java y C++/OracleONE/Hackaton/Tests/churninsight material/analista.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8000/batch-predict",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"batch-predict"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Java",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"pm.environment.set(\"token\", response.token);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"mmolinero12@gmail.com\",\r\n  \"password\": \"Ard1ll1t4$\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modelo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"nombre\": \"Modelo Forest Banco Banorte\",\r\n\t\"version\": \"2.0\",\r\n\t\"descripcion\": \"Modelo para proyecto ChurnInsight\",\r\n\t\"soportaIndividual\": true,\r\n\t\"soportaBatch\": true,\r\n\t\"endpointIndividual\": \"http://127.0.0.1:8000/predict\",\r\n\t\"endpointBatch\": \"http://127.0.0.1:8000/batch-predict\",\r\n    \"idUsuario\": 1\r\n\t\t\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/modelos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"modelos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Modelos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/modelos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"modelos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Modelo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/modelos/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"modelos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Predicción Individual",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idModelo\": 1,\r\n\t\"descripcion\": \"Esto es una prueba 12 enero 11:44\",\r\n    \"requestJson\": {\r\n       \"CreditScore\": 650,\r\n       \"Geography\": \"France\",\r\n       \"Gender\": \"Male\",\r\n       \"Age\": 38,\r\n       \"Tenure\": 5,\r\n       \"Balance\": 50000,\r\n       \"NumOfProducts\": 2,\r\n       \"HasCrCard\": 1,\r\n       \"IsActiveMember\": 1,\r\n       \"EstimatedSalary\": 60000\r\n  \t}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/individual",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"individual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Predicción Batch",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "request",
+									"value": "{\n  \"idModelo\": 1,\n  \"idUsuario\": 2,\n  \"descripcion\": \"Esto es una prueba 12 de enero 11:47\"\n}",
+									"contentType": "application/json",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"contentType": "text/csv",
+									"type": "file",
+									"src": "/D:/Respaldo Mike/Programación/Java y C++/OracleONE/Hackaton/Tests/churninsight material/analista.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/batch",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"batch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Predicciones Individuales",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/individual",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"individual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Predicciones Individuales Paginación",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/individual?page=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"individual"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Predicción - Pendiente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

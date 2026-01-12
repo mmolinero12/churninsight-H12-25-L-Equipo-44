@@ -1,5 +1,6 @@
 package org.hackaton.oracle.churninsight.web.dto.ml;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -26,4 +27,11 @@ public class CrearModeloRequest {
     private String endpointIndividual;
 
     private String endpointBatch;
+
+    @NotNull
+    private Long idUsuario;
+
+
+
+
 }

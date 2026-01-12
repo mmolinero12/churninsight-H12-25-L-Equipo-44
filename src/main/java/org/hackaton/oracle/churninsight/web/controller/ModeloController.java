@@ -37,6 +37,7 @@ public class ModeloController {
                 .soportaBatch(request.getSoportaBatch())
                 .endpointIndividual(request.getEndpointIndividual())
                 .endpointBatch(request.getEndpointBatch())
+                .idUsuario(request.getIdUsuario())
                 .estado(EstadoModelo.ACTIVO)
                 .build();
 

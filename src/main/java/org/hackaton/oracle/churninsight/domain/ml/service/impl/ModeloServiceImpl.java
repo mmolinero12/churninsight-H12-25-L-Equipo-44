@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(transactionManager = "mlTransactionManager")
+@Transactional(transactionManager = "mlOperationsTransactionManager")
 public class ModeloServiceImpl implements ModeloService {
 
     private final ModeloRepository modeloRepository;
@@ -41,7 +41,10 @@ public class ModeloServiceImpl implements ModeloService {
                 .soportaBatch(modelo.getSoportaBatch())
                 .endpointIndividual(modelo.getEndpointIndividual())
                 .endpointBatch(modelo.getEndpointBatch())
+                .idUsuario((modelo.getIdUsuario()))
                 .fechaCreacion(OffsetDateTime.now())
+                .fechaActivacion((modelo.getFechaActivacion()))
+                .fechaDesactivacion(modelo.getFechaDesactivacion())
                 .build();
 
         return modeloRepository.save(modeloPersistir);

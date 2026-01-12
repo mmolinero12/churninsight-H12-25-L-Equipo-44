@@ -52,10 +52,17 @@ public class Modelo {
     @Column(name = "endpoint_batch", columnDefinition = "TEXT")
     private String endpointBatch;
 
+    @Column(name = "id_usuario", nullable = false)
+    private Long idUsuario;
+
     @Column(name = "fecha_creacion", nullable = false)
     private OffsetDateTime fechaCreacion;
 
+    @Column(name = "fecha_activacion")
+    private OffsetDateTime fechaActivacion;
 
+    @Column(name = "fecha_desactivacion")
+    private OffsetDateTime fechaDesactivacion;
 
 
     public void cambiarEstado(EstadoModelo nuevoEstado) {

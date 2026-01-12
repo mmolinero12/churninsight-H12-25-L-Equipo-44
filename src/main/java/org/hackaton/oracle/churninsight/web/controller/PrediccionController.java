@@ -2,12 +2,13 @@ package org.hackaton.oracle.churninsight.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hackaton.oracle.churninsight.domain.ml.entity.ResultadoPrediccion;
 import org.hackaton.oracle.churninsight.domain.ml.entity.SolicitudPrediccionBatch;
 import org.hackaton.oracle.churninsight.domain.ml.entity.SolicitudPrediccionIndividual;
+import org.hackaton.oracle.churninsight.domain.ml.service.ResultadoPrediccionService;
 import org.hackaton.oracle.churninsight.domain.ml.service.SolicitudPrediccionBatchService;
 import org.hackaton.oracle.churninsight.domain.ml.service.SolicitudPrediccionIndividualService;
-import org.hackaton.oracle.churninsight.web.dto.ml.SolicitudPrediccionBatchRequest;
-import org.hackaton.oracle.churninsight.web.dto.ml.SolicitudPrediccionIndividualRequest;
+import org.hackaton.oracle.churninsight.web.dto.ml.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 
 @RestController
@@ -26,6 +29,7 @@ public class PrediccionController {
 
     private final SolicitudPrediccionIndividualService individualService;
     private final SolicitudPrediccionBatchService batchService;
+    private final ResultadoPrediccionService resultadoPrediccionService;
 
     // -------------------------
     // PREDICCIÓN INDIVIDUAL
@@ -34,7 +38,7 @@ public class PrediccionController {
             value = "/individual",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Long> crearPrediccionIndividual(
+    public ResponseEntity<PrediccionIndividualResponse> crearPrediccionIndividual(
             @Valid @RequestBody SolicitudPrediccionIndividualRequest request
     ) {
 
@@ -49,9 +53,21 @@ public class PrediccionController {
                         request.getRequestJson()
                 );
 
+        Optional<ResultadoPrediccion> resultadoOpt =
+                resultadoPrediccionService.obtenerPorSolicitudIndividual(
+                        solicitud.getId()
+                );
+
+        PrediccionIndividualResponse response =
+                PrediccionIndividualResponse.fromEntity(
+                        solicitud,
+                        resultadoOpt.orElse(null)
+                );
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(solicitud.getId());
+                .body(response);
+
     }
 
     // -------------------------
@@ -61,7 +77,7 @@ public class PrediccionController {
             value = "/batch",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<Long> crearPrediccionBatch(
+    public ResponseEntity<PrediccionBatchResponse> crearPrediccionBatch(
             @RequestPart("request")
             @Valid SolicitudPrediccionBatchRequest request,
 
@@ -73,6 +89,7 @@ public class PrediccionController {
             throw new IllegalArgumentException("El archivo CSV es obligatorio");
         }
 
+        // 1. Crear la solicitud batch (incluye llamada síncrona a Python)
         SolicitudPrediccionBatch solicitud =
                 batchService.crearSolicitud(
                         request.getIdModelo(),
@@ -82,10 +99,16 @@ public class PrediccionController {
                         file.getOriginalFilename()
                 );
 
+        // 2. Construir el DTO de respuesta para Postman
+        PrediccionBatchResponse response =
+                PrediccionBatchResponse.fromEntity(solicitud);
+
+        // 3. Responder al cliente
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(solicitud.getId());
+                .body(response);
     }
+
 
     private byte[] obtenerBytes(MultipartFile file) {
         try {
@@ -102,24 +125,31 @@ public class PrediccionController {
 // -------------------------
 
     @GetMapping("/individual")
-    public ResponseEntity<Page<SolicitudPrediccionIndividual>> listarPrediccionesIndividuales(
+    public ResponseEntity<Page<PrediccionIndividualResumenResponse>> listarPrediccionesIndividuales(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<SolicitudPrediccionIndividual> resultado =
+        Page<SolicitudPrediccionIndividual> solicitudes =
                 individualService.listar(PageRequest.of(page, size));
 
-        return ResponseEntity.ok(resultado);
+        Page<PrediccionIndividualResumenResponse> response =
+                solicitudes.map(PrediccionIndividualResumenResponse::fromEntity);
+
+        return ResponseEntity.ok(response);
+
     }
 
+
     @GetMapping("/individual/{id}")
-    public ResponseEntity<SolicitudPrediccionIndividual> obtenerPrediccionIndividual(
+    public ResponseEntity<PrediccionIndividualResumenResponse> obtenerPrediccionIndividual(
             @PathVariable Long id
     ) {
         SolicitudPrediccionIndividual solicitud =
                 individualService.obtenerPorId(id);
 
-        return ResponseEntity.ok(solicitud);
+        return ResponseEntity.ok(
+                PrediccionIndividualResumenResponse.fromEntity(solicitud)
+        );
     }
 
 
@@ -128,25 +158,64 @@ public class PrediccionController {
 // -------------------------
 
     @GetMapping("/batch")
-    public ResponseEntity<Page<SolicitudPrediccionBatch>> listarPrediccionesBatch(
+    public ResponseEntity<Page<PrediccionBatchResumenResponse>> listarPrediccionesBatch(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<SolicitudPrediccionBatch> resultado =
+        Page<SolicitudPrediccionBatch> solicitudes =
                 batchService.listar(PageRequest.of(page, size));
 
-        return ResponseEntity.ok(resultado);
+        Page<PrediccionBatchResumenResponse> response =
+                solicitudes.map(PrediccionBatchResumenResponse::fromEntity);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/batch/{id}")
-    public ResponseEntity<SolicitudPrediccionBatch> obtenerPrediccionBatch(
+    public ResponseEntity<PrediccionBatchResumenResponse> obtenerPrediccionBatch(
             @PathVariable Long id
     ) {
         SolicitudPrediccionBatch solicitud =
                 batchService.obtenerPorId(id);
 
-        return ResponseEntity.ok(solicitud);
+        return ResponseEntity.ok(
+                PrediccionBatchResumenResponse.fromEntity(solicitud)
+        );
     }
+
+    // -------------------------
+    // GET - RESULTADOS
+    // -------------------------
+
+    @GetMapping("/resultados")
+    public ResponseEntity<Page<ResultadoPrediccionResponse>> listarResultados(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ResultadoPrediccionResponse> response =
+                resultadoPrediccionService
+                        .listar(PageRequest.of(page, size))
+                        .map(ResultadoPrediccionResponse::fromEntity);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // -------------------------
+    // GET - RESULTADO POR ID
+    // -------------------------
+    @GetMapping("/{id}")
+    public ResponseEntity<ResultadoPrediccionResponse> obtenerResultado(
+            @PathVariable Long id
+    ) {
+        ResultadoPrediccion resultado =
+                resultadoPrediccionService.obtenerPorId(id);
+
+        return ResponseEntity.ok(
+                ResultadoPrediccionResponse.fromEntity(resultado)
+        );
+    }
+
+
 
 
 }
