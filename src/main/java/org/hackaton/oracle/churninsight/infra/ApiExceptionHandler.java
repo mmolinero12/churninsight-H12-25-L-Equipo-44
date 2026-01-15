@@ -1,6 +1,6 @@
 package org.hackaton.oracle.churninsight.infra;
 
-import org.hackaton.oracle.churninsight.infra.Exception.UsuarioNotFoundException;
+import org.hackaton.oracle.churninsight.infra.exception.UsuarioNotFoundException;
 import org.hackaton.oracle.churninsight.web.dto.error.ApiErrorResponseDTO;
 import org.hackaton.oracle.churninsight.web.dto.error.ValidationErrorDTO;
 import org.slf4j.Logger;

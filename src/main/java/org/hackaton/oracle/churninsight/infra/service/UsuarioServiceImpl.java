@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.hackaton.oracle.churninsight.domain.shared.direccion.Direccion;
 import org.hackaton.oracle.churninsight.domain.usuario.entity.Usuario;
 import org.hackaton.oracle.churninsight.domain.usuario.repository.UsuarioRepository;
-import org.hackaton.oracle.churninsight.infra.Exception.UsuarioNotFoundException;
+import org.hackaton.oracle.churninsight.infra.exception.UsuarioNotFoundException;
 import org.hackaton.oracle.churninsight.infra.mapper.DireccionMapper;
 import org.hackaton.oracle.churninsight.infra.mapper.UsuarioMapper;
 import org.hackaton.oracle.churninsight.web.dto.direccion.DatosActualizacionDireccion;

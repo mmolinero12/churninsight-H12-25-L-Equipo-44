@@ -1,4 +1,4 @@
-package org.hackaton.oracle.churninsight.infra.Exception;
+package org.hackaton.oracle.churninsight.infra.exception;
 
 public class UsuarioNotFoundException extends  RuntimeException{
 
