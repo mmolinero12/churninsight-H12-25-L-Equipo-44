@@ -1,5 +1,6 @@
 package org.hackaton.oracle.churninsight.infra;
 
+import io.jsonwebtoken.JwtException;
 import org.hackaton.oracle.churninsight.infra.exception.UsuarioNotFoundException;
 import org.hackaton.oracle.churninsight.web.error.ApiErrorResponse;
 import org.hackaton.oracle.churninsight.web.error.ValidationError;
