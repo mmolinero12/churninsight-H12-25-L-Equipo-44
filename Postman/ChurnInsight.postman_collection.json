@@ -26,7 +26,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"CreditScore\": 650,\r\n  \"Geography\": \"France\",\r\n  \"_Gender\": \"Male\",\r\n  \"Age\": 40,\r\n  \"Tenure\": 5,\r\n  \"Balance\": 60000,\r\n  \"NumOfProducts\": 2,\r\n  \"HasCrCard\": 1,\r\n  \"IsActiveMember\": 1,\r\n  \"EstimatedSalary\": 50000\r\n}",
+							"raw": "{\r\n  \"CreditScore\": 650,\r\n  \"Geography\": \"France\",\r\n  \"Gender\": \"Male\",\r\n  \"Age\": 40,\r\n  \"Tenure\": 5,\r\n  \"Balance\": 60000,\r\n  \"NumOfProducts\": 2,\r\n  \"HasCrCard\": 1,\r\n  \"IsActiveMember\": 1,\r\n  \"EstimatedSalary\": 50000\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -103,7 +103,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"username\": \"mmolinero12@gmail.com\",\r\n  \"password\": \"Ard1ll1t4$\"\r\n}",
+							"raw": "{\r\n  \"email\": \"yalimolinero@gmail.com\",\r\n  \"password\": \"Ard1ll1t4$\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -285,7 +285,7 @@
 							"formdata": [
 								{
 									"key": "request",
-									"value": "{\n  \"idModelo\": 1,\n  \"idUsuario\": 2,\n  \"descripcion\": \"Esto es una prueba 12 de enero 11:47\"\n}",
+									"value": "{\n  \"idModelo\": 1,\n  \"idUsuario\": 2,\n  \"descripcion\": \"Esto es una prueba 15 de enero 22:40\"\n}",
 									"contentType": "application/json",
 									"type": "text"
 								},
@@ -317,7 +317,14 @@
 					"name": "Listado de Predicciones Individuales",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -369,6 +376,105 @@
 									"key": "page",
 									"value": "0"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Predicciones Batch",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/batch",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"batch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Predicciones Batch Paginación",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/batch?page=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"batch"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listado de Resultados",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/predicciones/resultados",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"predicciones",
+								"resultados"
 							]
 						}
 					},
