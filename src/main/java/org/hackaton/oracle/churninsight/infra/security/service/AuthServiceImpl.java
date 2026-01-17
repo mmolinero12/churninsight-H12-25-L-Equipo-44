@@ -12,6 +12,7 @@ import org.hackaton.oracle.churninsight.web.dto.usuario.DatosDetalleUsuario;
 import org.hackaton.oracle.churninsight.web.dto.auth.LoginRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +76,16 @@ public class AuthServiceImpl implements AuthService {
                 (UsuarioAutenticacion) authentication.getPrincipal()
         );
 
-        return new DatosTokenJWT(token);
+        // Agregando rol
+
+        String rol = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() ->
+                        new IllegalStateException("Usuario autenticado sin rol asignado")
+                );
+
+        return new DatosTokenJWT(token, rol);
     }
 }
