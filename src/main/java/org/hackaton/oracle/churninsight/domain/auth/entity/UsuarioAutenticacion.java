@@ -65,7 +65,6 @@ public class UsuarioAutenticacion implements UserDetails {
         return u;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (usuarioRoles == null) return List.of();
@@ -76,9 +75,6 @@ public class UsuarioAutenticacion implements UserDetails {
                 .map(SimpleGrantedAuthority::new) // quita el "ROLE_" extra
                 .toList();
     }
-
-
-
 
     @Override
     public boolean isAccountNonExpired() {
