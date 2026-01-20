@@ -1,6 +1,5 @@
 package org.hackaton.oracle.churninsight.infra.security.config;
 
-
 import lombok.RequiredArgsConstructor;
 import org.hackaton.oracle.churninsight.infra.security.filter.SecurityFilter;
 import org.springframework.context.annotation.Bean;
@@ -25,25 +24,24 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     public final SecurityFilter securityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                // Habilita CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Deshabilita CSRF (API stateless con JWT)
                 .csrf(csrf -> csrf.disable())
+
+                // Sin sesiones
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("${frontend.url}"));
-                    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-                    config.setAllowedHeaders(List.of("Authorization","Content-Type"));
-                    config.setAllowCredentials(true);
-                    return config;
-                }))
-
+                // Reglas de autorización
                 .authorizeHttpRequests(rq -> rq
                         // Públicos
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
@@ -51,25 +49,51 @@ public class SecurityConfig {
 
                         // Protegidos por rol
                         .requestMatchers("/predicciones/**").hasAnyRole("ANALYST", "ADMIN")
-                        .requestMatchers("/usuario/**").hasAnyRole("ANALYST", "ADMIN")
+                        .requestMatchers("/usuario/**").hasAnyRole( "ADMIN")
 
                         .anyRequest().authenticated()
                 )
+
+                // Filtro JWT
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .build();
     }
 
-
-    //Autenticar el login
+    // Autenticación para login
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration
+    ) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    //Se hashea la contrasena con el Bcrypt
+    // Password encoder (BCrypt)
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Configuración CORS para frontend (Vercel)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+                List.of("https://churn-insight-ui.vercel.app")
+        );
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+        configuration.setAllowedHeaders(
+                List.of("Authorization", "Content-Type")
+        );
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
 }
