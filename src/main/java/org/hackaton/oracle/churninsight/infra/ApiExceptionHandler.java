@@ -1,16 +1,22 @@
 package org.hackaton.oracle.churninsight.infra;
 
+import io.jsonwebtoken.JwtException;
 import org.hackaton.oracle.churninsight.infra.exception.UsuarioNotFoundException;
 import org.hackaton.oracle.churninsight.web.dto.error.ApiErrorResponseDTO;
 import org.hackaton.oracle.churninsight.web.dto.error.ValidationErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +39,21 @@ public class ApiExceptionHandler {
                         ex.getMessage()
                 ));
 
+    }
+
+
+    //Metodo pára manejar Error 400(Bad Request) Json Invalido , CsV mal parseado,error en deserializacion
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleErrorJsonMalFormad(HttpMessageNotReadableException ex){
+        logger.warn("Json Mal Formado : {}",ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.FORBIDDEN.value(),
+                        "Cuerpo de la Peticion Invalido",
+                        "Json mal Formado o Tipos Incorrectos"
+                ));
     }
 
     //Metodo para Manejar Error 400(por validacion de campos de los dto)
@@ -71,17 +92,61 @@ public class ApiExceptionHandler {
 
     }
 
-    //Metodo para manejar Error 500 errores internos no controlados
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponseDTO>handleError500(Exception ex){
-        logger.warn("Error inesperado : {}",ex.getMessage());
+    //Metodo para Manejar error 401 {UnauThorized} Cualquier excepción de autenticación de Spring Security
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleErrorAuthentication(AuthenticationException ex){
+        logger.warn("No Autenticado : {}",ex.getMessage());
 
-        return ResponseEntity.internalServerError()
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ApiErrorResponseDTO(
                         LocalDateTime.now(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        "Error interno del servidor ,Contactese con el Administrador",
-                        ex.getMessage()
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "Credenciales inválidas",
+                        "Usuario o contraseña incorrectos"
+                ));
+    }
+
+    //Metodo para manejar Error 401 por Token invalido o Expirado
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleErrorJWT(JwtException ex){
+
+        logger.warn("Jwt Invalido : {}",ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "Token Invalido",
+                        "El Token es Invalido o a Expirado"
+                ));
+    }
+
+    //Metodo para manejar Error 403 {Forbbiden} Rol incorrecto o usuario autenticado pero sin permisos
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleErrorAccessDenied(AccessDeniedException ex){
+        logger.warn("Acceso Denegado : {}",ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.FORBIDDEN.value(),
+                        "Acceso Denegado",
+                        "No Tiene Permisos para Acceder a este recurso"
+                ));
+    }
+
+
+    //Metodo para manejar error 409 {Conflict} Usuario existente,Modelo Duplicado,Prediccion ya registrada
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponseDTO>hanledError409(DataIntegrityViolationException ex){
+        logger.warn("Conflicto de datos : {}",ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.CONFLICT.value(),
+                        "Conflicto de Datos",
+                        "El recurso ya existe o viola una Restriccion"
                 ));
     }
 
@@ -99,6 +164,38 @@ public class ApiExceptionHandler {
                         "Debe usar ´application/json´ en el encabezado Content-Type"
                 ));
     }
+
+    //Metodo para manejar Error 500 errores internos no controlados
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleError500(Exception ex){
+        logger.warn("Error inesperado : {}",ex.getMessage());
+
+        return ResponseEntity.internalServerError()
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        "Error interno del servidor ,Contactese con el Administrador",
+                        ex.getMessage()
+                ));
+    }
+
+
+    //Metodo para manejar Error 504 {Time Out GateWay}Timeout al consumir API externa o cuando el Modelo ML no Responde
+    @ExceptionHandler(ResourceAccessException.class)
+    public ResponseEntity<ApiErrorResponseDTO>handleError504(ResourceAccessException ex){
+        logger.warn("TimeOut en servicio externo : {}",ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT)
+                .body(new ApiErrorResponseDTO(
+                        LocalDateTime.now(),
+                        HttpStatus.GATEWAY_TIMEOUT.value(),
+                        "Tiempo de espera Agotado",
+                        "El Servicio Externo no respondio a tiempo"
+                ));
+    }
+
+
+
 
 
 }
